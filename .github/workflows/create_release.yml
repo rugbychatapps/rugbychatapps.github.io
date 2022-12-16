@@ -1,0 +1,42 @@
+name: Android Publish
+
+on:
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Set Up JDK
+        uses: actions/setup-java@v1
+        with:
+          java-version: 11
+
+      - name: Change wrapper permissions
+        run: chmod +x ./gradlew
+
+      - name: Build Project
+        run: ./gradlew build
+
+      - name: Build Release AAB      // 1
+        run: ./gradlew bundleRelease
+
+      - name: Sign AAB               // 2
+        uses: r0adkll/sign-android-release@v1
+        with:
+          releaseDirectory: app/build/outputs/bundle/release
+          signingKeyBase64: "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"
+          alias: "Rugby"
+          keyStorePassword: "Rugby@8866"
+          keyPassword: "Rugby@8866"
+          
+      - name: Upload APK
+        uses: actions/upload-artifact@v2
+        with:
+          name: app
+          path: app/build/outputs
